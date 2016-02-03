@@ -6,6 +6,9 @@ use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\ResourceModel\Eav\Attribute as CatalogAttribute;
 use Magento\Catalog\Setup\CategorySetup;
 use Magento\Catalog\Setup\CategorySetupFactory;
+use Magento\Customer\Model\Customer;
+use Magento\Customer\Setup\CustomerSetup;
+use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Store\Model\StoreManagerInterface as StoreManager;
 use Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend;
 use Magento\Framework\Setup\UpgradeDataInterface;
@@ -26,12 +29,20 @@ class UpgradeData implements UpgradeDataInterface
     private $catalogSetupFactory;
 
     /**
+     * Customer setup factory
+     *
+     * @var CustomerSetupFactory
+     */
+    private $customerSetupFactory;
+
+    /**
      * @var StoreManager
      */
     private $storeManager;
 
-    public function __construct(CategorySetupFactory $categorySetupFactory, StoreManager $storeManager) {
+    public function __construct(CategorySetupFactory $categorySetupFactory, CustomerSetupFactory $customerSetupFactory, StoreManager $storeManager) {
         $this->catalogSetupFactory = $categorySetupFactory;
+        $this->customerSetupFactory = $customerSetupFactory;
         $this->storeManager = $storeManager;
     }
 
@@ -80,6 +91,25 @@ class UpgradeData implements UpgradeDataInterface
                 'frontend_model' => \Training\Orm\Entity\Attribute\Frontend\HtmlList::class,
                 'is_html_allowed_on_front' => 1
             ]);
+        }
+
+        if ($context->getVersion()
+            && version_compare($context->getVersion(), '0.0.4') < 0
+        ) {
+            $customerSetup = $this->customerSetupFactory->create(['setup' => $setup]);
+            $customerSetup->addAttribute(Customer::ENTITY, 'priority', [
+                'label' => 'Priority',
+                'type' => 'int',
+                'input' => 'select',
+                'source' => \Training\Orm\Entity\Attribute\Source\CustomerPriority::class,
+                'required' => 0,
+                'system' => 0,
+                'position' => 100
+            ]);
+
+            $customerSetup->getEavConfig()->getAttribute('customer', 'priority')
+                ->setData('used_in_forms', ['adminhtml_customer'])
+                ->save();
         }
 
         $setup->endSetup();
