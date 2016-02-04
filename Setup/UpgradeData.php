@@ -112,6 +112,15 @@ class UpgradeData implements UpgradeDataInterface
                 ->save();
         }
 
+        if ($context->getVersion()
+            && version_compare($context->getVersion(), '0.0.5') < 0
+        ) {
+            $customerSetup = $this->customerSetupFactory->create(['setup' => $setup]);
+            $customerSetup->getEavConfig()->getAttribute('customer', 'priority')
+                ->setData('used_in_forms', ['adminhtml_customer', 'customer_account_create', 'customer_account_edit'])
+                ->save();
+        }
+
         $setup->endSetup();
     }
 }

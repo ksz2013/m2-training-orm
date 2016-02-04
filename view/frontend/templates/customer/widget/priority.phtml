@@ -1,0 +1,16 @@
+<?php
+// @codingStandardsIgnoreFile
+
+?>
+<div class="field priority<?php if ($block->isRequired()) echo ' required' ?>">
+    <label class="label" for="<?php /* @escapeNotVerified */ echo $block->getFieldId('priority')?>"><span><?php /* @escapeNotVerified */ echo __('Priority') ?></span></label>
+    <div class="control">
+        <select id="<?php /* @escapeNotVerified */ echo $block->getFieldId('priority')?>" name="<?php /* @escapeNotVerified */ echo $block->getFieldName('priority')?>" title="<?php /* @escapeNotVerified */ echo __('Priority') ?>"<?php if ($block->isRequired()):?> class="validate-select" data-validate="{required:true}"<?php endif; ?> <?php /* @escapeNotVerified */ echo $block->getFieldParams() ?>>
+            <?php $options = $block->getPriorityOptions(); ?>
+            <?php $value = $block->getPriority();?>
+            <?php foreach ($options as $option):?>
+                <option value="<?php /* @escapeNotVerified */ echo $option->getValue() ?>"<?php if ($option->getValue() == $value) echo ' selected="selected"' ?>><?php /* @escapeNotVerified */ echo __($option->getLabel()) ?></option>
+            <?php endforeach;?>
+        </select>
+    </div>
+</div>
